@@ -4,21 +4,19 @@ project(baton VERSION 0.0.1)
 
 include(ExternalProject)
 
-# set(LIBTORCH_URL "https://download.pytorch.org/libtorch/nightly/cpu/libtorch-shared-with-deps-latest.zip")
-# https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcpu.zip
-# set(LIBTORCH_URL "https://download.pytorch.org/libtorch/cpu/libtorch-macos-2.0.1.zip")
-
 if(APPLE)
     set(LIBTORCH_URL "https://download.pytorch.org/libtorch/cpu/libtorch-macos-2.0.1.zip")
 else()
     set(LIBTORCH_URL "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcpu.zip")
 endif()
-    
 
 set(LIBTORCH_DOWNLOAD_PATH ${CMAKE_BINARY_DIR}/downloads/libtorch.zip)
 set(EXTERNAL_LIB_DIR ${CMAKE_BINARY_DIR}/external)
 set(LIBTORCH_PATH ${EXTERNAL_LIB_DIR}/libtorch)
 set(FETCHCONTENT_QUIET FALSE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
+# ========== DOWNLOAD LIBTORCH ==========
 
 if(EXISTS "${LIBTORCH_DOWNLOAD_PATH}")
     message(STATUS "Libtorch has been downloaded. Moving on...")
@@ -35,6 +33,8 @@ else()
     endif()
 endif()
 
+# ========== DECOMPRESS LIBTORCH ==========
+
 if(EXISTS "${LIBTORCH_PATH}")
     message(STATUS "Unpacked Libtorch exists! Moving on...")
 else()
@@ -43,6 +43,8 @@ else()
     execute_process(COMMAND unzip ${LIBTORCH_DOWNLOAD_PATH} -d ${EXTERNAL_LIB_DIR})
     message(STATUS "Complete")
 endif()
+
+# ========== COMPILE AND LINK WITH LIBTORCH ==========
 
 set(CMAKE_PREFIX_PATH "${EXTERNAL_LIB_DIR}/libtorch/share/cmake")
 find_package(Torch REQUIRED)
