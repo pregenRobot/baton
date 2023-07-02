@@ -4,6 +4,8 @@ project(baton VERSION 0.0.1)
 
 include(ExternalProject)
 
+# ========== CONFIGURATION ==========
+
 if(APPLE)
     set(LIBTORCH_URL "https://download.pytorch.org/libtorch/cpu/libtorch-macos-2.0.1.zip")
 else()
@@ -15,6 +17,7 @@ set(EXTERNAL_LIB_DIR ${CMAKE_BINARY_DIR}/external)
 set(LIBTORCH_PATH ${EXTERNAL_LIB_DIR}/libtorch)
 set(FETCHCONTENT_QUIET FALSE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY .)
 
 # ========== DOWNLOAD LIBTORCH ==========
 
@@ -50,10 +53,10 @@ set(CMAKE_PREFIX_PATH "${EXTERNAL_LIB_DIR}/libtorch/share/cmake")
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
-
-add_executable(${PROJECT_NAME} server.cpp)
+file(GLOB SOURCES src/*.cpp)
+add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} "${TORCH_LIBRARIES}")
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 
 
 
