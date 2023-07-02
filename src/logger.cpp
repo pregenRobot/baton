@@ -10,8 +10,8 @@
 using namespace std;
 using namespace Color;
 
-const void Logger::log(string message,
-                 Logger::Level log_level = Logger::Level::DEBUG) {
+void Logger::log(string message,
+                 Logger::Level log_level = Logger::Level::DEBUG) const {
 
   if (log_level <= this->log_level) {
     const Modifier def(Code::FG_DEFAULT);
@@ -52,18 +52,18 @@ const void Logger::log(string message,
   }
 }
 
-const void Logger::error(string message) {
+void Logger::error(string message) const {
   Logger::log(message, Logger::Level::ERROR);
 };
 
-const void Logger::warn(string message) {
+void Logger::warn(string message) const {
   Logger::log(message, Logger::Level::WARN);
 };
 
-const void Logger::info(string message) {
+void Logger::info(string message) const {
   Logger::log(message, Logger::Level::INFO);
 };
 
-const void Logger::debug(string message) {
+void Logger::debug(string message) const {
   Logger::log(message, Logger::Level::DEBUG);
 };
