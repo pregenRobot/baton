@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
     logger.error("This is an error message");
     logger.log("This is a warning message", Logger::Level::WARN);
 
+
   // cout << "[INFO] Started Server" << endl;
 
   // int server_fd, new_socket, valread;

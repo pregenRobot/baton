@@ -10,7 +10,7 @@
 using namespace std;
 using namespace Color;
 
-void Logger::log(string message,
+const void Logger::log(string message,
                  Logger::Level log_level = Logger::Level::DEBUG) {
 
   if (log_level <= this->log_level) {
@@ -52,18 +52,18 @@ void Logger::log(string message,
   }
 }
 
-void Logger::error(string message) {
+const void Logger::error(string message) {
   Logger::log(message, Logger::Level::ERROR);
 };
 
-void Logger::warn(string message) {
+const void Logger::warn(string message) {
   Logger::log(message, Logger::Level::WARN);
 };
 
-void Logger::info(string message) {
+const void Logger::info(string message) {
   Logger::log(message, Logger::Level::INFO);
 };
 
-void Logger::debug(string message) {
+const void Logger::debug(string message) {
   Logger::log(message, Logger::Level::DEBUG);
 };

@@ -38,11 +38,11 @@ class Logger {
 
         Logger(Level log_level):log_level(log_level){};
         
-        void log(string message, Level log_level);
-        void error(string message);
-        void warn(string message);
-        void info(string message);
-        void debug(string message);
+        void log(string message, Level log_level) const;
+        void error(string message) const;
+        void warn(string message) const;
+        void info(string message) const;
+        void debug(string message) const;
     private:
         Level log_level;
 };
