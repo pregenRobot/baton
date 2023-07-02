@@ -12,7 +12,7 @@ using namespace baton;
 InputServer::InputServer(ServerOpts& server_opts):
     port_number(server_opts.server_port_number),
     logger(server_opts.logger),
-    buffer(new char[server_opts.max_buffer_size]),
+    buffer(new char[server_opts.max_buffer_size]()),
     read_size(server_opts.read_size)
 {};
 
@@ -72,12 +72,12 @@ void InputServer::stop(){
 
 void InputServer::read(){
     int valread;
-    valread = ::read(this->new_socket, this->buffer, this->read_size);
+    valread = ::read(this->new_socket, this->buffer, 2);
     cout << this->buffer << endl;
 }
 
 void InputServer::write(const string& message){
-    ::send(this->new_socket, &message, message.size(), 0);
+    ::send(this->new_socket, message.c_str(), message.size(), 0);
     this->logger.info("Sent message back to the client");
 }
 
