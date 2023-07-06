@@ -14,8 +14,8 @@ typedef struct ServerOpts {
   Logger &logger;
   int server_port_number;
   int max_buffer_size;
-  int read_size = DEF_METADATA_SIZE;
-  int write_size = 4;
+  int read_size;
+  int write_size = DEF_METADATA_SIZE;
 } ServerOpts;
 
 class InputServer {
