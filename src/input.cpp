@@ -1,14 +1,18 @@
 #include "input.hpp"
 #include "logger.hpp"
+#include <cerrno>
 #include <iostream>
 #include <string>
+#include <thread>
 
 using namespace baton;
+using namespace std;
 
 InputServer::InputServer(ServerOpts &server_opts)
     : port_number(server_opts.server_port_number), logger(server_opts.logger),
       buffer(new char[server_opts.max_buffer_size]()),
-      read_size(server_opts.read_size), write_size(server_opts.write_size){};
+      read_size(server_opts.read_size), write_size(server_opts.write_size),
+      keep_alive(false), is_connected(false){};
 
 void InputServer::setup() {
 
@@ -55,10 +59,13 @@ void InputServer::accept() {
            ::accept(this->server_fd, (struct sockaddr *)&this->address,
                     (socklen_t *)&address_len)) < 0) {
   }
+  this->is_connected = true;
+  this->logger.info("Accepted connection request from the client");
 }
 
 void InputServer::stop() {
 
+  this->keep_alive.store(false);
   ::close(this->new_socket);
   ::shutdown(this->server_fd, SHUT_RDWR);
   this->logger.info("Shutting down server");
@@ -76,9 +83,45 @@ void InputServer::write(const string &message) {
   this->logger.info("Sent message back to the client");
 }
 
+void InputServer::thread_handler() {
+  int valread;
+
+  while (!this->is_connected) {
+    this->accept();
+  }
+
+  while (this->keep_alive.load()) {
+
+    valread = ::read(this->new_socket, this->buffer, this->read_size);
+
+    // Failures
+    if (valread == 0) {
+      this->logger.info(
+          "Client has gracefully disconnected. Closing client connection...");
+      ::close(this->new_socket);
+      continue;
+    } else if (valread == -1) {
+      if (errno == ECONNRESET || errno == EPIPE) {
+        this->logger.error(
+            "Client has disconnected ungracefully due to an error.");
+        ::close(this->new_socket);
+      }
+      continue;
+    }
+
+    // this->logger.info("Read message from client");
+
+    this->logger.info("Read message: " + string(this->buffer) +
+                      " valread: " + to_string(valread));
+  };
+  int x = 0;
+}
+
 void InputServer::start() {
   this->setup();
   this->bind();
   this->listen();
-  this->accept();
+
+  this->keep_alive.store(true);
+  this->server_thread = ::thread(&InputServer::thread_handler, this);
 }

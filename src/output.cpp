@@ -1,4 +1,6 @@
 #include "output.hpp"
+#include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace baton;
@@ -10,7 +12,19 @@ OutputClient::OutputClient(ClientOpts &client_opts)
       buffer(new char[client_opts.max_buffer_size]()),
       target_server_address(client_opts.target_server_address){};
 
-void OutputClient::start() { this->connect(); }
+void OutputClient::thread_handler() {
+  while (this->keep_alive.load()) {
+    this_thread::sleep_for(chrono::seconds(5));
+    this->write("This is some message from the client sent every 5 seconds");
+  }
+}
+
+void OutputClient::start() {
+  this->connect();
+
+  this->keep_alive.store(true);
+  this->client_thread = ::thread(&OutputClient::thread_handler, this);
+}
 
 void OutputClient::connect() {
   if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) == ETIMEDOUT) {
@@ -21,7 +35,8 @@ void OutputClient::connect() {
   server_address.sin_family = AF_INET;
   server_address.sin_port = htons(this->target_server_port);
 
-  if (inet_pton(AF_INET, this->target_server_address, &server_address.sin_addr),
+  if (inet_pton(AF_INET, this->target_server_address.c_str(),
+                &server_address.sin_addr),
       sizeof(server_address) < 0) {
     this->logger.error(
         "Invalid address or IPv4 or IPv6 address is not supported");
@@ -34,6 +49,8 @@ void OutputClient::connect() {
     this->logger.error("Failed to connect to server");
     exit(EXIT_FAILURE);
   }
+
+  this->logger.info("Client connection established with the server");
 };
 
 int OutputClient::read() {

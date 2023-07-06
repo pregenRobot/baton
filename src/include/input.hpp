@@ -3,8 +3,10 @@
 #include "common.hpp"
 #include "logger.hpp"
 #include "string"
+#include <atomic>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <thread>
 #include <unistd.h>
 
 namespace baton {
@@ -20,7 +22,7 @@ typedef struct ServerOpts {
 
 class InputServer {
 
-public:
+private:
   const int port_number;
   const Logger &logger;
   const int read_size;
@@ -30,19 +32,25 @@ public:
   int new_socket;
   struct sockaddr_in address;
   int max_buffer_size;
-  char *buffer;
 
+  char *buffer;
+  void setup();
+  void bind();
+  void listen();
+  void accept();
+  void thread_handler();
+
+  bool is_connected;
+
+public:
   InputServer(ServerOpts &server_opts);
+
+  atomic<bool> keep_alive;
+  thread server_thread;
 
   void start();
   int read();
   void write(const string &message);
   void stop();
-
-private:
-  void setup();
-  void bind();
-  void listen();
-  void accept();
 };
 } // namespace baton

@@ -3,8 +3,10 @@
 #include "common.hpp"
 #include "logger.hpp"
 #include <arpa/inet.h>
+#include <atomic>
 #include <stdio.h>
 #include <sys/socket.h>
+#include <thread>
 #include <unistd.h>
 
 namespace baton {
@@ -15,13 +17,17 @@ typedef struct ClientOpts {
   int max_buffer_size;
   int write_size;
   int read_size = DEF_METADATA_SIZE;
-  char *target_server_address;
+  string target_server_address;
   int target_server_port;
 } ClientOpts;
 
 class OutputClient {
+
+private:
+  void connect();
+
   const int target_server_port;
-  char *target_server_address;
+  string target_server_address;
 
   const Logger &logger;
 
@@ -34,14 +40,16 @@ class OutputClient {
   struct sockaddr_in server_address;
   int connect_status;
 
+public:
   OutputClient(ClientOpts &client_opts);
+
+  atomic<bool> keep_alive;
+  thread client_thread;
 
   void start();
   int read();
   void write(const string &message);
   void stop();
-
-private:
-  void connect();
+  void thread_handler();
 };
 } // namespace baton

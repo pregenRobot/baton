@@ -3,12 +3,14 @@
 #include "input.hpp"
 #include "logger.hpp"
 #include "output.hpp"
+#include <chrono>
 #include <iostream>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <thread>
 #include <torch/torch.h>
 #include <unistd.h>
 
@@ -26,10 +28,19 @@ int main(int argc, char **argv) {
                        .max_buffer_size = 1024,
                        .read_size = 1024};
 
-  InputServer input_server = InputServer(s_opts);
+  InputServer input_server(s_opts);
   input_server.start();
-  input_server.read();
-  string message = "Hello message from the server\0\n";
-  input_server.write(message);
-  input_server.stop();
+
+  ClientOpts c_opts = {.logger = logger,
+                       .max_buffer_size = 1024,
+                       .write_size = 1024,
+                       .read_size = 1024,
+                       .target_server_address = "127.0.0.1",
+                       .target_server_port = 9876};
+
+  OutputClient output_client(c_opts);
+  output_client.start();
+
+  output_client.client_thread.join();
+  input_server.server_thread.join();
 }

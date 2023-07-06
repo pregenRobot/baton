@@ -53,10 +53,11 @@ set(CMAKE_PREFIX_PATH "${EXTERNAL_LIB_DIR}/libtorch/share/cmake")
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
-file(GLOB SOURCES src/*.cpp src/*.hpp)
+file(GLOB SOURCES src/*.cpp src/shared/*.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} "${TORCH_LIBRARIES}")
+target_include_directories(${PROJECT_NAME} PRIVATE src/include)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 
 
