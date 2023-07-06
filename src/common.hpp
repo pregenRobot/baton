@@ -1,13 +1,11 @@
-#pragma once
-
-#include "logger.hpp"
 
 
-typedef struct{
-    int server_port_number;
-    Logger &logger;
-    int max_buffer_size;
-    int read_size;
+namespace baton {
 
-} ServerOpts;
+  constexpr int DEF_METADATA_SIZE = 4;
 
+  constexpr int MSG_READY = 1;
+  constexpr int MSG_OK = 2;
+  constexpr int MSG_MORE = 3;
+  constexpr int MSG_FAIL = 4;
+}

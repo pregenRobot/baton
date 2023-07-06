@@ -1,20 +1,14 @@
 #include "input.hpp"
 #include "logger.hpp"
-#include "common.hpp"
-#include <string>
 #include <iostream>
+#include <string>
 
 using namespace baton;
 
-// InputServer::InputServer(const int port_number, const Logger &logger)
-//     : port_number(port_number), logger(logger){};
-
-InputServer::InputServer(ServerOpts& server_opts):
-    port_number(server_opts.server_port_number),
-    logger(server_opts.logger),
-    buffer(new char[server_opts.max_buffer_size]()),
-    read_size(server_opts.read_size)
-{};
+InputServer::InputServer(ServerOpts &server_opts)
+    : port_number(server_opts.server_port_number), logger(server_opts.logger),
+      buffer(new char[server_opts.max_buffer_size]()),
+      read_size(server_opts.read_size), write_size(server_opts.write_size){};
 
 void InputServer::setup() {
 
@@ -63,27 +57,28 @@ void InputServer::accept() {
   }
 }
 
-void InputServer::stop(){
+void InputServer::stop() {
 
-    close(this->new_socket);
-    ::shutdown(this->server_fd, SHUT_RDWR);
-    this->logger.info("Shutting down server");
+  ::close(this->new_socket);
+  ::shutdown(this->server_fd, SHUT_RDWR);
+  this->logger.info("Shutting down server");
 }
 
-void InputServer::read(){
-    int valread;
-    valread = ::read(this->new_socket, this->buffer, 2);
-    cout << this->buffer << endl;
+int InputServer::read() {
+  int valread;
+  valread = ::read(this->new_socket, this->buffer, 2);
+  cout << this->buffer << endl;
+  return valread;
 }
 
-void InputServer::write(const string& message){
-    ::send(this->new_socket, message.c_str(), message.size(), 0);
-    this->logger.info("Sent message back to the client");
+void InputServer::write(const string &message) {
+  ::send(this->new_socket, message.c_str(), message.size(), 0);
+  this->logger.info("Sent message back to the client");
 }
 
-void InputServer::start(){
-    this->setup();
-    this->bind();
-    this->listen();
-    this->accept();
+void InputServer::start() {
+  this->setup();
+  this->bind();
+  this->listen();
+  this->accept();
 }

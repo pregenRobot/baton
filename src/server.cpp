@@ -9,7 +9,6 @@
 #include <torch/torch.h>
 #include <unistd.h>
 #include "logger.hpp"
-#include "common.hpp"
 #include "input.hpp"
 
 #define OUT_PORT 9876
