@@ -28,7 +28,7 @@ private:
   const int read_size;
   const int write_size;
 
-  server_fd server_fd;
+  server_fd fd;
   int new_socket;
   struct sockaddr_in address;
   int max_buffer_size;

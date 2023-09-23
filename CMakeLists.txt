@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26.4)
+cmake_minimum_required(VERSION 3.25.1)
 
 project(baton VERSION 0.0.1)
 

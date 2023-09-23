@@ -36,7 +36,7 @@ private:
   int max_buffer_size;
   char *buffer;
 
-  client_fd client_fd;
+  client_fd fd;
   struct sockaddr_in server_address;
   int connect_status;
 

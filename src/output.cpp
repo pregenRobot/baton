@@ -27,7 +27,7 @@ void OutputClient::start() {
 }
 
 void OutputClient::connect() {
-  if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) == ETIMEDOUT) {
+  if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == ETIMEDOUT) {
     this->logger.error("Timed out when trying to acquire socket");
     exit(EXIT_FAILURE);
   }
@@ -44,7 +44,7 @@ void OutputClient::connect() {
   }
 
   if ((connect_status =
-           ::connect(this->client_fd, (struct sockaddr *)&server_address,
+           ::connect(this->fd, (struct sockaddr *)&server_address,
                      sizeof(server_address))) < 0) {
     this->logger.error("Failed to connect to server");
     exit(EXIT_FAILURE);
@@ -55,16 +55,16 @@ void OutputClient::connect() {
 
 int OutputClient::read() {
   int valread;
-  valread = ::read(this->client_fd, buffer, this->read_size);
+  valread = ::read(this->fd, buffer, this->read_size);
   return valread;
 }
 
 void OutputClient::write(const string &message) {
-  ::send(client_fd, message.c_str(), message.size(), 0);
+  ::send(fd, message.c_str(), message.size(), 0);
   this->logger.info("Sent message back to the server");
 }
 
 void OutputClient::stop() {
-  ::close(this->client_fd);
+  ::close(this->fd);
   this->logger.info("Closing client connection to the server");
 }

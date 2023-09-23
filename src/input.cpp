@@ -16,13 +16,13 @@ InputServer::InputServer(ServerOpts &server_opts)
 
 void InputServer::setup() {
 
-  if ((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) == ETIMEDOUT) {
+  if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == ETIMEDOUT) {
     this->logger.error("Timed out when trying to acquire socket");
     exit(EXIT_FAILURE);
   }
 
   int opt = 1;
-  if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEADDR, &opt,
+  if (setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &opt,
                  sizeof(opt))) {
     this->logger.error("Failed to set socket options");
     exit(EXIT_FAILURE);
@@ -37,7 +37,7 @@ void InputServer::bind() {
   this->address.sin_port = htons(this->port_number);
 
   size_t address_len = sizeof(this->address);
-  if (::bind(this->server_fd, (struct sockaddr *)&this->address, address_len)) {
+  if (::bind(this->fd, (struct sockaddr *)&this->address, address_len)) {
     this->logger.error("Failed to bind to port");
     exit(EXIT_FAILURE);
   }
@@ -45,7 +45,7 @@ void InputServer::bind() {
 }
 
 void InputServer::listen() {
-  if (::listen(this->server_fd, 3) < 0) {
+  if (::listen(this->fd, 3) < 0) {
     this->logger.error("Failed to bind to port");
     exit(EXIT_FAILURE);
   }
@@ -56,7 +56,7 @@ void InputServer::accept() {
 
   size_t address_len = sizeof(this->address);
   if ((this->new_socket =
-           ::accept(this->server_fd, (struct sockaddr *)&this->address,
+           ::accept(this->fd, (struct sockaddr *)&this->address,
                     (socklen_t *)&address_len)) < 0) {
   }
   this->is_connected = true;
@@ -67,7 +67,7 @@ void InputServer::stop() {
 
   this->keep_alive.store(false);
   ::close(this->new_socket);
-  ::shutdown(this->server_fd, SHUT_RDWR);
+  ::shutdown(this->fd, SHUT_RDWR);
   this->logger.info("Shutting down server");
 }
 
